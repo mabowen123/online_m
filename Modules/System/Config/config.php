@@ -1,2 +1,4 @@
 <?php
-return [];
+return [
+    'token' => env('ADMIN_TOKEN', 'Token'),
+];

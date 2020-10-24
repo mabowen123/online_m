@@ -11,6 +11,21 @@ class LoginController extends Controller
 {
     public function login(Request $request)
     {
-        return success();
+        $this->validate($request, [
+            'username' => 'required',
+            'password' => 'required'
+        ]);
+        $credentials = $request->only(['username', 'password']);
+        if ($token = auth()->attempt($credentials)) {
+            return success(['token' => $token], '登录成功');
+        } else {
+            return failed('用户名或密码错误', -100);
+        }
+    }
+
+    public function logout(Request $request)
+    {
+        auth()->logout();
+        return success([], '退出成功');
     }
 }
