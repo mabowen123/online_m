@@ -18,6 +18,7 @@
           v-model="loginForm.username"
           placeholder="用户名"
           tabindex="1"
+          type="text"
         />
       </el-form-item>
       <el-form-item prop="password">
@@ -30,7 +31,6 @@
           :type="passwordType"
           placeholder="密码"
           tabindex="2"
-          autocomplete="on"
           @keyup.enter.native="handleLogin"
         />
         <span
@@ -50,6 +50,7 @@
   </div>
 </template>
 <script>
+import { Message } from 'element-ui'
 export default {
   data() {
     return {
@@ -80,7 +81,11 @@ export default {
           this.$store.dispatch('user/login', this.loginForm).then(() => {
             this.loading = false
             this.$router.push({ path: this.redirect || '/' })
-            this.$message({ message: '登陆成功', type: 'success', duration: 3 * 1000 })
+            Message({
+              message: '登录成功，正在跳转...',
+              type: 'success',
+              duration: 3 * 1000
+            })
           }).catch(() => {
             this.loading = false
           })
