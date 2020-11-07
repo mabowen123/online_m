@@ -63,3 +63,18 @@ div:focus {
 .app-container {
   padding: 20px;
 }
+
+.filter-container {
+  padding-bottom: 10px;
+
+  .filter-item {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 5px 5px 10px 5px;
+  }
+
+  .filter-items {
+    vertical-align: middle;
+    margin-bottom: 10px;
+  }
+}

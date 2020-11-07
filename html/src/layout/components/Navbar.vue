@@ -7,7 +7,19 @@
     />
 
     <breadcrumb class="breadcrumb-container" />
-
+    <div class="left-menu">
+      <el-button-group>
+        <el-button
+          v-for="group in groups"
+          :key="group.name"
+          :type="group.type"
+          round
+          @click="switchRoutes(group.name)"
+        >
+          {{ group.name }}
+        </el-button>
+      </el-button-group>
+    </div>
     <div class="right-menu">
       <el-dropdown
         class="avatar-container"
@@ -35,26 +47,61 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { deepClone } from '@/utils'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
-
+import { routeGroups } from '@/router'
 export default {
   components: {
     Breadcrumb,
     Hamburger
   },
+  data() {
+    return {
+      currentRoute: deepClone(this.$store.getters.addRouters)
+    }
+  },
   computed: {
     ...mapGetters([
       'sidebar',
       'name'
-    ])
+    ]),
+    groups: {
+      get: function() {
+        return routeGroups()
+      }
+    }
   },
   methods: {
+    routeGroups,
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
     },
+    switchRoutes(groupName) {
+      this.$store.commit('SET_ROUTERS', this.handleRouter(groupName))
+    },
+    handleRouter(groupName) { // 路由类别切换
+      let items = []
+      this.groups.map(item => {
+        if (item.name === groupName) {
+          items = item.routes
+        }
+      })
+      const newitems = []
+      items.forEach(a => {
+        this.currentRoute.forEach(b => {
+          if (a.path === b.path) {
+            newitems.push(b)
+          }
+        })
+      })
+
+      return newitems
+    },
     async logout() {
-      await this.$store.dispatch('user/logout')
+      await this.$store.dispatch('user/logout').then(() => {
+        location.reload()
+      })
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
     }
   }
@@ -85,7 +132,37 @@ export default {
   .breadcrumb-container {
     float: left;
   }
-
+  .left-menu {
+    margin-left: 20px;
+    align-items: center;
+    float: left;
+    height: 100%;
+  }
+  @media screen and (max-width: 723px) {
+    .left-menu {
+      >>> .el-button-group {
+        .el-button {
+          padding: 10px 10px;
+        }
+      }
+    }
+  }
+  @media screen and (max-width: 638px) {
+    .left-menu {
+      >>> .el-button-group {
+        margin-left: -5px;
+        .el-button {
+          padding: 10px 10px;
+          border-radius: 0;
+        }
+      }
+    }
+    .right-menu {
+      float: none !important;
+      width: 80px;
+      margin: 0 auto;
+    }
+  }
   .right-menu {
     float: right;
     height: 100%;

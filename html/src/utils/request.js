@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { Message } from 'element-ui'
 import store from '@/store'
-import { getToken } from '@/utils/auth'
+import { getToken, removeToken } from '@/utils/auth'
 
 // create an axios instance
 const service = axios.create({
@@ -40,8 +40,6 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
-
-    // if the custom code is not 20000, it is judged as an error.
     if (res.code !== 0) {
       Message({
         message: res.message || 'Error',
@@ -50,12 +48,34 @@ service.interceptors.response.use(
       })
       return Promise.reject(new Error(res.message || 'Error'))
     } else {
-      return res
+      return Promise.resolve(res.data)
     }
   },
   error => {
+    let message = error.message
+    switch (error.response.status) {
+      case 401:
+        message = '用户未登录或登录信息已失效'
+        removeToken()
+        window.location.reload()
+        break
+      case 422:
+        message = ''
+        if (error.response.data && error.response.data.errors) {
+          for (const key in error.response.data.errors) {
+            const errors = error.response.data.errors[key]
+            for (const index in errors) {
+              message += errors[index] + '<br>'
+            }
+          }
+        }
+        break
+
+      default:
+        break
+    }
     Message({
-      message: error.message,
+      message: message,
       type: 'error',
       duration: 5 * 1000
     })

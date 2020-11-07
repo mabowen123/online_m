@@ -33,9 +33,8 @@ const actions = {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
-        const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
+        commit('SET_TOKEN', response.token)
+        setToken(response.token)
         resolve()
       }).catch(error => {
         reject(error)
@@ -44,16 +43,15 @@ const actions = {
   },
 
   // get user info
-  getInfo({ commit, state }) {
+  getInfo({ commit }) {
     return new Promise((resolve, reject) => {
       getInfo().then(response => {
-        const { data } = response
-        if (!data) {
+        if (!response) {
           return reject('Verification failed, please Login again.')
         }
-        commit('SET_USER_NAME', data.username)
-        commit('SET_NAME', data.name)
-        resolve(data)
+        commit('SET_USER_NAME', response.username)
+        commit('SET_NAME', response.name)
+        resolve(response)
       }).catch(error => {
         reject(error)
       })
@@ -61,9 +59,9 @@ const actions = {
   },
 
   // user logout
-  logout({ commit, state }) {
+  logout({ commit }) {
     return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
+      logout().then(() => {
         removeToken() // must remove  token  first
         resetRouter()
         commit('RESET_STATE')
